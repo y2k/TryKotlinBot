@@ -1,28 +1,33 @@
-﻿open System
-
-module RX = Observable
+﻿module RX = Observable
+module T  = Telegram
+module I  = Interactive
 
 module Domain =
-    let validate (message: string) =
+    let format (message: string) =
         if message = "/start" then Error "TODO description"
-        else if message.Length > 140 then Error "Code to long"
+        else if message.Length > 140 then Error "Code too long"
         else Ok (message.Replace('”', '"').Replace('“', '"'))
+    
+    let formatOut (message: string) =
+        if message.Length > 100 then 
+            message.Substring(0, 100) + "\n\n[RESULT TOO LONG (" + (string message.Length) + ")]"
+        else message
 
 [<EntryPoint>]
 let main argv =
-    Telegram.listenForMessages argv.[0]
+    T.listenForMessages argv.[0]
         |> RX.add (fun x -> 
             async {
-                let pm = Domain.validate x.text
+                let pm = Domain.format x.text
                 let! a = match pm with
                          | Error e   -> async.Return e
                          | Ok script -> async {
-                                            let result = Interactive.execute script
-                                            return result
+                                            let result = I.execute script
+                                            return Domain.formatOut result
                                         }
-                Telegram.send argv.[0] x.user a |> ignore
+                T.send argv.[0] x.user a |> ignore
             } |> Async.Start)
 
     printfn "Listening for updates..."
-    Threading.Thread.Sleep(-1);
+    System.Threading.Thread.Sleep(-1);
     0
