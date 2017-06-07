@@ -8,12 +8,13 @@ RUN apt-get update && apt-get install zip unzip && \
     sdk install java; \
     sdk install kotlin;"
 
+ENV PATH=$PATH:/root/.sdkman/candidates/kotlin/current/bin:/root/.sdkman/candidates/java/current/bin
+
 # .NET Core
 
 ARG source=.
 WORKDIR /app
 COPY $source .
-
 RUN dotnet restore
 
 CMD ["/bin/bash", "-c", "dotnet run $TOKEN"]
