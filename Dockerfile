@@ -1,10 +1,14 @@
 FROM microsoft/dotnet:latest
 
-RUN deb http://httpredir.debian.org/debian/ jessie main contrib
-RUN apt-get update && apt-get install java-package && exit
+# Java & Kotlin
 
-RUN curl -s https://get.sdkman.io | bash
-RUN sdk install kotlin
+RUN apt-get update && apt-get install zip unzip && \
+    curl -s "https://get.sdkman.io" | bash && \
+    /bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh; \
+    sdk install java; \
+    sdk install kotlin;"
+
+# .NET Core
 
 ARG source=.
 WORKDIR /app
