@@ -6,7 +6,7 @@ module Domain =
     let private inputLimit = 150
     let private outputLImit = 200
     let format (message: string) =
-        if message = "/start" then Error "TODO description"
+        if message = "/start" then Error "TODO description\n\nSource code (MIT): https://github.com/y2k/TryKotlinBot"
         else if message.Length > inputLimit then Error (sprintf "Code too long (limit is %O charactes)" inputLimit)
         else Ok (message.Replace('”', '"').Replace('“', '"'))
     
