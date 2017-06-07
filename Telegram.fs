@@ -6,6 +6,10 @@ module RX = Observable
 
 type Message = { text: string; user: string }
 
+let setProgress (token: string) (user: string) =
+    let bot = TelegramBotClient(token)
+    bot.SendChatActionAsync(user, Types.Enums.ChatAction.Typing) |> Async.AwaitTask
+
 let listenForMessages (token: string) =
     let bot = TelegramBotClient(token)
     let result = bot.OnUpdate 
@@ -17,6 +21,6 @@ let listenForMessages (token: string) =
 let send (token: string) (user: string) message =
     try
         let bot = TelegramBotClient(token)
-        bot.SendTextMessageAsync(user, message, parseMode = Types.Enums.ParseMode.Default).Result |> ignore
+        bot.SendTextMessageAsync(user, message, parseMode = Types.Enums.ParseMode.Markdown).Result |> ignore
     with
     | e -> printfn "Log error: %O" e
