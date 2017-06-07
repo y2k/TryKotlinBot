@@ -20,14 +20,14 @@ let main argv =
         |> RX.add (fun x -> 
             async {
                 let pm = Domain.format x.text
-                let! a = match pm with
-                         | Error e   -> async.Return e
-                         | Ok script -> async {
-                                            do! T.setProgress argv.[0] x.user
-                                            let result = I.execute script
-                                            return Domain.formatOut result
-                                        }
-                T.send argv.[0] x.user a |> ignore
+                let! resp = match pm with
+                            | Error e   -> async.Return e
+                            | Ok script -> async {
+                                               do! T.setProgress argv.[0] x.user
+                                               let result = I.execute script
+                                               return Domain.formatOut result
+                                           }
+                T.send argv.[0] x.user resp
             } |> Async.Start)
 
     printfn "Listening for updates..."
