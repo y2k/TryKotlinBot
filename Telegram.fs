@@ -19,8 +19,11 @@ let listenForMessages (token: string) =
     result
 
 let send (token: string) (user: string) message =
-    try
-        let bot = TelegramBotClient(token)
-        bot.SendTextMessageAsync(user, message, parseMode = Types.Enums.ParseMode.Markdown).Result |> ignore
-    with
-    | e -> printfn "Log error: %O" e
+    async {
+        try
+            let bot = TelegramBotClient(token)
+            let! _ = bot.SendTextMessageAsync(user, message, parseMode = Types.Enums.ParseMode.Markdown) |> Async.AwaitTask
+            ()
+        with
+        | e -> printfn "Log error: %O" e
+    }

@@ -27,7 +27,7 @@ let main argv =
                                                let result = I.execute script
                                                return Domain.formatOut result
                                            }
-                T.send argv.[0] x.user resp
+                do! T.send argv.[0] x.user resp
             } |> Async.Start)
 
     printfn "Listening for updates..."
