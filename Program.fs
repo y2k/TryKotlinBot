@@ -3,14 +3,16 @@ module T  = Telegram
 module I  = Interactive
 
 module Domain =
+    let private inputLimit = 150
+    let private outputLImit = 200
     let format (message: string) =
         if message = "/start" then Error "TODO description"
-        else if message.Length > 150 then Error "Code too long (limit is 150 charactes)"
+        else if message.Length > inputLimit then Error (sprintf "Code too long (limit is %O charactes)" inputLimit)
         else Ok (message.Replace('”', '"').Replace('“', '"'))
     
     let formatOut (message: string) =
-        if message.Length > 200 then 
-            message.Substring(0, 200) + "...\n\n[RESULT TOO LONG (" + (string message.Length) + ")]"
+        if message.Length > outputLImit then 
+            message.Substring(0, outputLImit) + "...\n\n[RESULT TOO LONG (" + (string message.Length) + ")]"
         else message
         |> sprintf "```\n%O\n```"
 
