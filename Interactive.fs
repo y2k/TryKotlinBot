@@ -10,6 +10,7 @@ let private shell command args =
     psi.Arguments <- args
     psi.UseShellExecute <- false
     psi.RedirectStandardOutput <- true
+    psi.RedirectStandardError <- true
     Process.Start(psi)
 
 let compileAndExecute (script: string) =
@@ -19,19 +20,24 @@ let compileAndExecute (script: string) =
         File.WriteAllText(tmp, code)
         let jar = tmp + ".jar"
 
-        shell "kotlinc" (tmp + " -include-runtime -d " + jar) 
-        |> (fun x -> x.WaitForExit())
+        let cp = shell "kotlinc" (tmp + " -include-runtime -d " + jar)
+        cp.WaitForExit()
+        if cp.ExitCode <> 0 then 
+            File.Delete tmp
+            let e = cp.StandardError.ReadToEnd()
+            let e = "code.kt" + e.Replace(tmp, "")
+            printfn "Compile error = %O" e
+            e
+        else
+            let p = shell "java" ("-Xmx16m -jar " + jar)
+            let success = p.WaitForExit(5000)
+            let out = if success then p.StandardOutput.ReadToEnd()
+                      else p.Kill()
+                           "Timeout exception"
 
-        let p = shell "java" ("-Xmx16m -jar " + jar)
-        let success = p.WaitForExit(5000)
-        let out = if success then p.StandardOutput.ReadToEnd()
-                  else
-                      p.Kill()
-                      "Timeout exception"
-
-        File.Delete tmp
-        File.Delete jar
-        out                  
+            File.Delete tmp
+            File.Delete jar
+            out                  
     with
     | e -> (string e)
 
