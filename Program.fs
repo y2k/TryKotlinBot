@@ -6,7 +6,7 @@ module Domain =
     let private inputLimit = 150
     let private outputLimit = 200
     let format (message: string) =
-        if message = "/start" then Error "TODO description\n\nSource code (MIT): https://github.com/y2k/TryKotlinBot"
+        if message = "/start" then Error "Compile & Run simple Kotlin code\n\nSource code (MIT): https://github.com/y2k/TryKotlinBot\nKotlin Slack bot: @SlackToTelegramBot"
         else if message.Length > inputLimit then Error (sprintf "Code too long (limit is %O charactes)" inputLimit)
         else Ok (message.Replace('”', '"').Replace('“', '"'))
     
