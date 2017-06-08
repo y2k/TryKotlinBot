@@ -30,7 +30,7 @@ let compileAndExecute (script: string) =
             e
         else
             let p = shell "java" ("-Xmx16m -jar " + jar)
-            let success = p.WaitForExit(5000)
+            let success = p.WaitForExit(1000)
             let out = if success then p.StandardOutput.ReadToEnd()
                       else p.Kill()
                            "Timeout exception"
