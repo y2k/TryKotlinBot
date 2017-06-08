@@ -4,15 +4,16 @@ module I  = Interactive
 
 module Domain =
     let private inputLimit = 150
-    let private outputLImit = 200
+    let private outputLimit = 200
     let format (message: string) =
         if message = "/start" then Error "TODO description\n\nSource code (MIT): https://github.com/y2k/TryKotlinBot"
         else if message.Length > inputLimit then Error (sprintf "Code too long (limit is %O charactes)" inputLimit)
         else Ok (message.Replace('”', '"').Replace('“', '"'))
     
     let formatOut (message: string) =
-        if message.Length > outputLImit then 
-            message.Substring(0, outputLImit) + "...\n\n[RESULT TOO LONG (" + (string message.Length) + ")]"
+        if message.Trim() = "" then "[ERROR] Empty output"
+        else if message.Length > outputLimit then 
+            message.Substring(0, outputLimit) + "...\n\n[RESULT TOO LONG (" + (string message.Length) + ")]"
         else message
         |> sprintf "```\n%O\n```"
 
