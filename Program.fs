@@ -26,7 +26,7 @@ let main argv =
                             | Error e   -> async.Return e
                             | Ok script -> async {
                                                do! T.setProgress argv.[0] x.user
-                                               let result = I.execute script
+                                               let result = I.compileAndExecute script
                                                return Domain.formatOut result
                                            }
                 do! T.send argv.[0] x.user resp
