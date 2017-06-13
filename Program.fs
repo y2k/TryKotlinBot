@@ -3,12 +3,15 @@ module T  = Telegram
 module I  = Interactive
 
 module Domain =
+    let private help = "Compile & Run simple Kotlin code\n\nSource code (MIT): https://github.com/y2k/TryKotlinBot\nKotlin Slack bot: @SlackToTelegramBot"
     let private inputLimit = 150
     let private outputLimit = 200
-    let format (message: string) =
-        if message = "/start" then Error "Compile & Run simple Kotlin code\n\nSource code (MIT): https://github.com/y2k/TryKotlinBot\nKotlin Slack bot: @SlackToTelegramBot"
-        else if message.Length > inputLimit then Error (sprintf "Code too long (limit is %O characters)" inputLimit)
-        else Ok (message.Replace('”', '"').Replace('“', '"'))
+    
+    let formatIn (message: string) =
+        match message with
+        | "/start"                     -> Error help
+        | x when x.Length > inputLimit -> Error (sprintf "Code too long (limit is %O characters)" inputLimit)
+        | _                            -> Ok (message.Replace('”', '"').Replace('“', '"'))
     
     let formatOut (message: string) =
         if message.Trim() = "" then "[ERROR] Empty output"
@@ -22,7 +25,7 @@ let main argv =
     T.listenForMessages argv.[0]
         |> RX.add (fun x -> 
             async {
-                let pm = Domain.format x.text
+                let pm = Domain.formatIn x.text
                 let! resp = match pm with
                             | Error e   -> async.Return e
                             | Ok script -> async {
