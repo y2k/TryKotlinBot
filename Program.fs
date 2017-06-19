@@ -5,7 +5,7 @@ module I  = Interactive
 module Domain =
     let private help = "Compile & Run simple Kotlin code\n\nSource code (MIT): https://github.com/y2k/TryKotlinBot\nKotlin Slack bot: @SlackToTelegramBot"
     let private inputLimit = 150
-    let private outputLimit = 200
+    let private outputLimit = 300
     
     let formatIn (message: string) =
         match message with
@@ -14,7 +14,8 @@ module Domain =
         | _                            -> Ok (message.Replace('”', '"').Replace('“', '"'))
     
     let formatOut (message: string) =
-        if message.Trim() = "" then "[ERROR] Empty output"
+        let message = message.Trim(' ', '\r', '\n')
+        if message = "" then "[ERROR] Empty output"
         else if message.Length > outputLimit then 
             message.Substring(0, outputLimit) + "...\n\n[RESULT TOO LONG (" + (string message.Length) + ")]"
         else message
@@ -30,7 +31,7 @@ let main argv =
                             | Error e   -> async.Return e
                             | Ok script -> async {
                                                do! T.setProgress argv.[0] x.user
-                                               let result = I.compileAndExecute script
+                                               let! result = I.callKotlinService script
                                                return Domain.formatOut result
                                            }
                 do! T.send argv.[0] x.user resp
