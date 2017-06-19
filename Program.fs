@@ -14,11 +14,11 @@ module Domain =
         | _                            -> Ok (message.Replace('”', '"').Replace('“', '"'))
     
     let formatOut (message: string) =
-        let message = message.Trim(' ', '\r', '\n')
-        if message = "" then "[ERROR] Empty output"
-        else if message.Length > outputLimit then 
+        match message.Trim(' ', '\r', '\n') with
+        | ""                            -> "[ERROR] Empty output"
+        | x when x.Length > outputLimit -> 
             message.Substring(0, outputLimit) + "...\n\n[RESULT TOO LONG (" + (string message.Length) + ")]"
-        else message
+        | _                             -> message
         |> sprintf "```\n%O\n```"
 
 [<EntryPoint>]
