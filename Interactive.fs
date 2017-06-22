@@ -56,5 +56,5 @@ let callKotlinService (script: string) =
         let pin = generatePincode()
         let endMark = computeMd5 pin
         let msg = pin + (encodeBase64 script)
-        return! agent.PostAndAsyncReply(fun x -> (msg, endMark, x))
+        return! agent.PostAndAsyncReply(fun x -> msg, endMark, x)
     }
