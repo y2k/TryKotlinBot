@@ -51,10 +51,9 @@ let private agent = MailboxProcessor<Msg>.Start (fun inbox ->
     }
     messageLoop())
 
-let callKotlinService (script: string) =
-    async {
-        let pin = generatePincode()
-        let endMark = computeMd5 pin
-        let msg = pin + (encodeBase64 script)
-        return! agent.PostAndAsyncReply(fun x -> msg, endMark, x)
-    }
+let callKotlinService (script: string) = async {
+    let pin = generatePincode()
+    let endMark = computeMd5 pin
+    let msg = pin + (encodeBase64 script)
+    return! agent.PostAndAsyncReply(fun x -> msg, endMark, x)
+}
