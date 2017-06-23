@@ -17,6 +17,7 @@ let private generatePincode =
     let rand = Random()
     fun () -> lock rand (fun () -> rand.Next(1000, 9999).ToString())
 
+
 let private readWhile (reader: StreamReader) (endMark: string) = async {
     use sw = new StringWriter()
     let rec readWhileRec () = async {
@@ -29,8 +30,7 @@ let private readWhile (reader: StreamReader) (endMark: string) = async {
     return sw.ToString()
 }
 
-type private Msg = string * string * AsyncReplyChannel<string>
-let private agent = MailboxProcessor<Msg>.Start (fun inbox ->
+let private createProcess () =
     let psi = ProcessStartInfo()
     psi.WorkingDirectory <- Path.Combine(Directory.GetCurrentDirectory(), "bin/kotlinservice/bin")
     psi.FileName <- "bash"
@@ -38,10 +38,14 @@ let private agent = MailboxProcessor<Msg>.Start (fun inbox ->
     psi.UseShellExecute <- false
     psi.RedirectStandardInput <- true
     psi.RedirectStandardOutput <- true
-    let kotlinService = Process.Start(psi)
+    Process.Start(psi)
 
+type private Msg = string * string * int * AsyncReplyChannel<string>
+
+let private agent = MailboxProcessor<Msg>.Start (fun inbox ->
+    let kotlinService = createProcess ()
     let rec messageLoop() = async {
-        let! (msg, endMark, reply) = inbox.Receive()        
+        let! (msg, endMark, timeout, reply) = inbox.Receive()        
 
         do! kotlinService.StandardInput.WriteLineAsync(msg) |> Async.AwaitTask
         let! result = readWhile kotlinService.StandardOutput endMark
@@ -51,7 +55,7 @@ let private agent = MailboxProcessor<Msg>.Start (fun inbox ->
     }
     messageLoop())
 
-let callKotlinService (script: string) = async {
+let callKotlinService (script: string) (timeout: int) = async {
     let pin = generatePincode()
     let endMark = computeMd5 pin
     let msg = pin + (encodeBase64 script)
