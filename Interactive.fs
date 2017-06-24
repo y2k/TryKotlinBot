@@ -18,7 +18,7 @@ let private generatePincode =
     fun () -> lock rand (fun () -> rand.Next(1000, 9999).ToString())
 
 
-let private readWhile (reader: StreamReader) (endMark: string) = async {
+let private readToMark (reader: StreamReader) (endMark: string) = async {
     use sw = new StringWriter()
     let rec readWhileRec () = async {
         let! line = reader.ReadLineAsync() |> Async.AwaitTask
@@ -42,7 +42,7 @@ let private createProcess () =
 
 type private Msg = string * string * int * AsyncReplyChannel<string option>
 
-let private callWithTimeout operation timeout = async {
+let private callWithTimeout timeout operation = async {
     let! child = Async.StartChild (operation, timeout) 
     try 
         let! x = child 
@@ -51,12 +51,22 @@ let private callWithTimeout operation timeout = async {
 }
 
 let private agent = MailboxProcessor<Msg>.Start (fun inbox ->
-    let mutable kotlinService = createProcess ()
+    let mutable daemon: Process = null
+    daemon <- createProcess ()
     let rec messageLoop() = async {
         let! (msg, endMark, timeout, reply) = inbox.Receive()        
-        do! kotlinService.StandardInput.WriteLineAsync(msg) |> Async.AwaitTask
-        let operation = readWhile kotlinService.StandardOutput endMark
-        let! result = callWithTimeout operation timeout
+
+        do! daemon.StandardInput.WriteLineAsync(msg) |> Async.AwaitTask
+
+        let! result = readToMark daemon.StandardOutput endMark
+                      |> callWithTimeout timeout
+
+        match result with
+        | None -> 
+            daemon.Kill ()
+            daemon <- createProcess ()
+        | _ -> ignore()
+
         result |> reply.Reply
     }
     messageLoop())
