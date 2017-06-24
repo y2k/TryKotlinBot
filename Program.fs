@@ -42,5 +42,5 @@ let main argv =
             } |> Async.Start)
 
     printfn "Listening for telegram updates..."
-    System.Threading.Thread.Sleep(-1);
+    System.Threading.Thread.Sleep(-1)
     0
