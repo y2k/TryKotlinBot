@@ -66,6 +66,7 @@ let private agent = MailboxProcessor<Msg>.Start (fun inbox ->
         | _ -> ignore()
 
         response |> reply.Reply
+        return! messageLoop()
     }
     messageLoop())
 
