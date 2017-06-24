@@ -42,20 +42,22 @@ let private createProcess () =
 
 type private Msg = string * string * int * AsyncReplyChannel<string option>
 
+let private callWithTimeout operation timeout = async {
+    let! child = Async.StartChild (operation, timeout) 
+    try 
+        let! x = child 
+        return Some x
+    with :? TimeoutException -> return None 
+}
+
 let private agent = MailboxProcessor<Msg>.Start (fun inbox ->
-    let kotlinService = createProcess ()
+    let mutable kotlinService = createProcess ()
     let rec messageLoop() = async {
         let! (msg, endMark, timeout, reply) = inbox.Receive()        
-
         do! kotlinService.StandardInput.WriteLineAsync(msg) |> Async.AwaitTask
         let operation = readWhile kotlinService.StandardOutput endMark
-
-        let! child = Async.StartChild (operation, timeout) 
-        try 
-            let! x = child 
-            reply.Reply(Some x)
-        with :? TimeoutException -> reply.Reply None 
-        return! messageLoop()  
+        let! result = callWithTimeout operation timeout
+        result |> reply.Reply
     }
     messageLoop())
 
