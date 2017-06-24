@@ -40,7 +40,7 @@ let private createProcess () =
     psi.RedirectStandardOutput <- true
     Process.Start(psi)
 
-type private Msg = string * string * int * AsyncReplyChannel<string>
+type private Msg = string * string * int * AsyncReplyChannel<string option>
 
 let private agent = MailboxProcessor<Msg>.Start (fun inbox ->
     let kotlinService = createProcess ()
@@ -48,9 +48,13 @@ let private agent = MailboxProcessor<Msg>.Start (fun inbox ->
         let! (msg, endMark, timeout, reply) = inbox.Receive()        
 
         do! kotlinService.StandardInput.WriteLineAsync(msg) |> Async.AwaitTask
-        let! result = readWhile kotlinService.StandardOutput endMark
-        reply.Reply result
+        let operation = readWhile kotlinService.StandardOutput endMark
 
+        let! child = Async.StartChild (operation, timeout) 
+        try 
+            let! x = child 
+            reply.Reply(Some x)
+        with :? TimeoutException -> reply.Reply None 
         return! messageLoop()  
     }
     messageLoop())
@@ -59,5 +63,6 @@ let callKotlinService (script: string) (timeout: int) = async {
     let pin = generatePincode()
     let endMark = computeMd5 pin
     let msg = pin + (encodeBase64 script)
-    return! agent.PostAndAsyncReply(fun x -> msg, endMark, x)
+    let! result = agent.PostAndAsyncReply(fun x -> msg, endMark, timeout, x)
+    return result |> Option.defaultValue "Error: timeout"
 }
