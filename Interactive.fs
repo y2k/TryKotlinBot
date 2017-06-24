@@ -73,6 +73,6 @@ let callKotlinService (script: string) (timeout: int) = async {
     let pin = generatePincode()
     let endMark = computeMd5 pin
     let msg = pin + (encodeBase64 script)
-    let! result = agent.PostAndAsyncReply(fun x -> msg, endMark, timeout, x)
+    let! result = agent.PostAndAsyncReply(fun replyChannel -> msg, endMark, timeout, replyChannel)
     return result |> Option.defaultValue "Error: timeout"
 }
