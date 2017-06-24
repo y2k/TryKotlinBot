@@ -51,23 +51,21 @@ let private callWithTimeout timeout operation = async {
 }
 
 let private agent = MailboxProcessor<Msg>.Start (fun inbox ->
-    let mutable daemon: Process = null
-    daemon <- createProcess ()
+    let mutable daemon = createProcess ()
     let rec messageLoop() = async {
         let! (msg, endMark, timeout, reply) = inbox.Receive()        
 
         do! daemon.StandardInput.WriteLineAsync(msg) |> Async.AwaitTask
 
-        let! result = readToMark daemon.StandardOutput endMark
-                      |> callWithTimeout timeout
+        let! response = readToMark daemon.StandardOutput endMark
+                        |> callWithTimeout timeout
 
-        match result with
-        | None -> 
-            daemon.Kill ()
-            daemon <- createProcess ()
+        match response with
+        | None -> daemon.Kill ()
+                  daemon <- createProcess ()
         | _ -> ignore()
 
-        result |> reply.Reply
+        response |> reply.Reply
     }
     messageLoop())
 

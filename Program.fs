@@ -23,6 +23,10 @@ module Domain =
 
 [<EntryPoint>]
 let main argv =
+    printfn "Warmup Kotlin daemon..."
+    I.callKotlinService "2+2" -1 |> Async.RunSynchronously |> ignore
+    printfn "Kotlin daemon is ready"
+
     T.listenForMessages argv.[0]
         |> RX.add (fun x -> 
             async {
@@ -37,6 +41,6 @@ let main argv =
                 do! T.send argv.[0] x.user resp
             } |> Async.Start)
 
-    printfn "Listening for updates..."
+    printfn "Listening for telegram updates..."
     System.Threading.Thread.Sleep(-1);
     0
