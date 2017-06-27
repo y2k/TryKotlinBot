@@ -2,8 +2,6 @@ FROM microsoft/dotnet:latest
 
 ## Set LOCALE to UTF8
 
-# ENV DEBIAN_FRONTEND noninteractive
-
 RUN apt-get update && apt-get install -y locales
 
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
