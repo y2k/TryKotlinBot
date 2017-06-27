@@ -63,7 +63,7 @@ let private agent = MailboxProcessor<Msg>.Start (fun inbox ->
         match response with
         | None -> daemon.Kill ()
                   daemon <- createProcess ()
-        | _ -> ignore()
+        | _    -> ignore()
 
         response |> reply.Reply
         return! messageLoop()
