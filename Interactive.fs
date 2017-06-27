@@ -51,8 +51,13 @@ let private callWithTimeout timeout operation = async {
 }
 
 let private agent = MailboxProcessor<Msg>.Start (fun inbox ->
-    let mutable daemon = createProcess ()
+    let mutable daemon: Process = null
     let rec messageLoop() = async {
+        if isNull daemon then
+            printfn "LOG: Kotlin process is null, starting..."
+            daemon <- createProcess()
+            printfn "LOG: Kotlin process is started"
+
         let! (msg, endMark, timeout, reply) = inbox.Receive()        
 
         do! daemon.StandardInput.WriteLineAsync(msg) |> Async.AwaitTask
@@ -61,9 +66,10 @@ let private agent = MailboxProcessor<Msg>.Start (fun inbox ->
                         |> callWithTimeout timeout
 
         match response with
-        | None -> daemon.Kill ()
-                  daemon <- createProcess ()
-        | _    -> ignore()
+        | None -> daemon.Kill()
+                  daemon <- null
+                  printfn "LOG: Kill process"
+        | _    -> ()
 
         response |> reply.Reply
         return! messageLoop()
@@ -74,6 +80,17 @@ let callKotlinService (script: string) (timeout: int) = async {
     let pin = generatePincode()
     let endMark = computeMd5 pin
     let msg = pin + (encodeBase64 script)
+    
     let! result = agent.PostAndAsyncReply(fun replyChannel -> msg, endMark, timeout, replyChannel)
+    printfn "LOG: result for executing code (%O) = %O" script result
+
+    match result with
+    | None ->
+        printfn "LOG: Warmup Kotlin daemon after crash"
+        let warmMsg = pin + (encodeBase64 "0")
+        let! _ = agent.PostAndAsyncReply(fun replyChannel -> warmMsg, endMark, -1, replyChannel)
+        ()
+    | _    -> ()
+
     return result |> Option.defaultValue (sprintf "Error: timeout (max %O ms)" timeout)
 }

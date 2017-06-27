@@ -24,7 +24,7 @@ module Domain =
 [<EntryPoint>]
 let main argv =
     printfn "Warmup Kotlin daemon..."
-    I.callKotlinService "2+2" -1 |> Async.RunSynchronously |> ignore
+    I.callKotlinService "0" -1 |> Async.RunSynchronously |> ignore
     printfn "Kotlin daemon is ready"
 
     T.listenForMessages argv.[0]
@@ -35,7 +35,7 @@ let main argv =
                             | Error e   -> async.Return e
                             | Ok script -> async {
                                                do! T.setProgress argv.[0] x.user
-                                               let! result = I.callKotlinService script 1000
+                                               let! result = I.callKotlinService script 2000
                                                return Domain.formatOut result
                                            }
                 do! T.send argv.[0] x.user resp
