@@ -32,7 +32,7 @@ let private readToMark (reader: StreamReader) (endMark: string) = async {
 
 let private createProcess () =
     let psi = ProcessStartInfo()
-    psi.WorkingDirectory <- Path.Combine(Directory.GetCurrentDirectory(), "bin/kotlinservice/bin")
+    psi.WorkingDirectory <- Path.Combine(Directory.GetCurrentDirectory(), "bin/kotlindaemon/bin")
     psi.FileName <- "bash"
     psi.Arguments <- "kotlindaemon"
     psi.UseShellExecute <- false
