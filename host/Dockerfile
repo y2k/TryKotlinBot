@@ -1,5 +1,7 @@
 FROM microsoft/dotnet:latest
 
+## Set LOCALE to UTF8
+
 RUN apt-get update && apt-get install -y locales \
     echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
     locale-gen en_US.UTF-8 && \
@@ -7,7 +9,7 @@ RUN apt-get update && apt-get install -y locales \
     /usr/sbin/update-locale LANG=en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
 
-# Java & Kotlin
+## Java & Kotlin
 
 RUN apt-get update && apt-get install zip unzip && \
     curl -s "https://get.sdkman.io" | bash && \
@@ -16,7 +18,7 @@ RUN apt-get update && apt-get install zip unzip && \
 
 ENV PATH=$PATH:/root/.sdkman/candidates/kotlin/current/bin:/root/.sdkman/candidates/java/current/bin
 
-# .NET Core
+## .NET Core
 
 ARG source=.
 WORKDIR /app
