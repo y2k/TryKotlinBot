@@ -10,6 +10,9 @@ RUN apt-get update && apt-get install zip unzip && \
 
 ENV PATH=$PATH:/root/.sdkman/candidates/kotlin/current/bin:/root/.sdkman/candidates/java/current/bin
 
+ENV LANG=en_US.UTF-8
+ENV LESSCHARSET=utf-8
+
 # .NET Core
 
 ARG source=.
