@@ -33,4 +33,6 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-compiler:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-script-util:$kotlin_version"
+
+    testCompile 'junit:junit:4.12'
 }

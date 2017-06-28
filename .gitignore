@@ -3,3 +3,4 @@ obj
 daemon/.gradle
 daemon/build
 host/Debug
+daemon/.idea

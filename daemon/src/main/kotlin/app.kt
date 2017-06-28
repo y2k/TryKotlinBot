@@ -2,6 +2,7 @@ import java.security.MessageDigest.getInstance
 import java.util.Base64.getDecoder
 import java.util.Base64.getEncoder
 import javax.script.ScriptEngineManager
+import javax.script.SimpleScriptContext
 
 fun main(args: Array<String>) {
     readLines().forEach(::handleLine)
@@ -15,6 +16,7 @@ private fun handleLine(line: String) {
         .let { getDecoder().decode(it) }
         .let { String(it) }
     try {
+        engine.context = SimpleScriptContext()
         println(engine.eval(code) ?: "")
     } catch (e: Exception) {
         println(e.message)
