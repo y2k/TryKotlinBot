@@ -9,7 +9,7 @@ module Domain =
     
     let formatIn (message: string) =
         match message with
-        | "/start"                     -> Error help
+        | null | "/start"              -> Error help
         | x when x.Length > inputLimit -> Error (sprintf "Code too long (limit is %O characters)" inputLimit)
         | _                            -> Ok (message.Replace('”', '"').Replace('“', '"'))
     
