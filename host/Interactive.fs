@@ -17,7 +17,6 @@ let private generatePincode =
     let rand = Random()
     fun () -> lock rand (fun () -> rand.Next(1000, 9999).ToString())
 
-
 let private readToMark (reader: StreamReader) (endMark: string) = async {
     use sw = new StringWriter()
     let rec readWhileRec () = async {
