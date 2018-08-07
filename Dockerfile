@@ -6,7 +6,7 @@ FROM microsoft/dotnet:2.1-sdk
 
 WORKDIR /app
 COPY host /app
-RUN dotnet publish -c Release -r linux-x64 --self-contained false -o out
+RUN dotnet publish -c Release -r linux-x64 --self-contained false -o publish
 
 # ###############################
 # Java build stage
