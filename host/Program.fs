@@ -1,10 +1,6 @@
-﻿module RX = Observable
-module T  = Telegram
-module I  = Interactive
-
-module Domain =
+﻿module Domain =
     let private help = "Compile & Run simple Kotlin code\n\nSource code (MIT): https://github.com/y2k/TryKotlinBot\nKotlin Slack bot: @SlackToTelegramBot"
-    let private inputLimit = 150
+    let private inputLimit = 300
     let private outputLimit = 300
     
     let formatIn (message: string) =
@@ -22,25 +18,26 @@ module Domain =
         |> sprintf "```\n%O\n```"
 
 [<EntryPoint>]
-let main argv =
+let main _ =
     printfn "Warmup Kotlin daemon..."
-    I.callKotlinService "0" -1 |> Async.RunSynchronously |> ignore
+    Interactive.callKotlinService "0" -1 |> Async.RunSynchronously |> ignore
     printfn "Kotlin daemon is ready"
 
-    T.listenForMessages argv.[0]
-        |> RX.add (fun x -> 
+    Telegram.listenForMessages ()
+        |> Observable.add (fun x -> 
             async {
+                printfn "Get message = %s" x.text
                 let pm = Domain.formatIn x.text
                 let! resp = match pm with
                             | Error e   -> async.Return e
                             | Ok script -> async {
-                                               do! T.setProgress argv.[0] x.user
-                                               let! result = I.callKotlinService script 3000
+                                               do! Telegram.setProgress x.user
+                                               let! result = Interactive.callKotlinService script 3000
                                                return Domain.formatOut result
                                            }
-                do! T.send argv.[0] x.user resp
+                do! Telegram.send x.user resp
             } |> Async.Start)
 
     printfn "Listening for telegram updates..."
-    System.Threading.Thread.Sleep(-1)
+    System.Threading.Thread.Sleep -1
     0
