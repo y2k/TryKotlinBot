@@ -44,6 +44,6 @@ ENV PATH=$PATH:/root/.sdkman/candidates/kotlin/current/bin:/root/.sdkman/candida
 
 WORKDIR /app
 COPY --from=0 /app/publish .
-COPY --from=1 /app/build/install /bin
+COPY --from=1 /app/build/install ./bin
 
 ENTRYPOINT ["dotnet", "TryKtBot.dll"]
