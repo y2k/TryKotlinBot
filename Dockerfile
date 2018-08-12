@@ -46,4 +46,4 @@ WORKDIR /app
 COPY --from=0 /app/publish .
 COPY --from=1 /app/build/install /bin
 
-ENTRYPOINT ["dotnet", "SlackToTelegramBot.dll"]
+ENTRYPOINT ["dotnet", "TryKtBot.dll"]
