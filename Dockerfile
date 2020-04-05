@@ -16,6 +16,7 @@ FROM openjdk:8u212-jdk-alpine
 
 WORKDIR /app
 COPY daemon /app
+RUN ls -Rl
 RUN ./gradlew --no-daemon installDist
 
 # Install Java
