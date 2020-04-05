@@ -1,7 +1,7 @@
 ﻿module Domain =
     let private help = "Compile & Run simple Kotlin code\n\nSource code (MIT): https://github.com/y2k/TryKotlinBot\nKotlin Slack bot: @SlackToTelegramBot"
-    let private inputLimit = 300
-    let private outputLimit = 300
+    let private inputLimit = 1000
+    let private outputLimit = 500
     
     let formatIn (message: string) =
         match message with
