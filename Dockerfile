@@ -6,6 +6,7 @@ FROM mcr.microsoft.com/dotnet/core/sdk:3.1.201-alpine3.10
 
 WORKDIR /app
 COPY host /app
+RUN ls
 RUN dotnet publish -c Release -r linux-x64 --self-contained false -o bin/publish
 
 # ###############################
@@ -47,6 +48,6 @@ COPY --from=1 /app/build/install ./bin
 COPY --from=1 /app/jdk8u242-b08-jre /jre
 
 ENV PATH="/jre/bin:${PATH}"
-RUN	java -version
+RUN java -version
 
 ENTRYPOINT ["dotnet", "TryKtBot.dll"]
