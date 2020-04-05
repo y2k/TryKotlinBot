@@ -2,17 +2,17 @@
 # .NET build stage
 # ###############################
 
-FROM microsoft/dotnet:2.1-sdk
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1.201-alpine3.10
 
 WORKDIR /app
 COPY host /app
-RUN dotnet publish -c Release -r linux-x64 --self-contained false -o publish
+RUN dotnet publish -c Release -r linux-x64 --self-contained false -o bin/publish
 
 # ###############################
 # Java build stage
 # ###############################
 
-FROM openjdk:8u131-jdk-alpine
+FROM openjdk:8u212-jdk-alpine
 
 WORKDIR /app
 COPY daemon /app
@@ -22,7 +22,7 @@ RUN ./gradlew --no-daemon installDist
 # Deploy stage
 # ###############################
 
-FROM microsoft/dotnet:2.1.2-runtime
+FROM mcr.microsoft.com/dotnet/core/runtime:3.1.3-buster-slim
 
 ## Set LOCALE to UTF8
 
@@ -43,7 +43,7 @@ RUN apt-get update && apt-get install zip unzip && \
 ENV PATH=$PATH:/root/.sdkman/candidates/kotlin/current/bin:/root/.sdkman/candidates/java/current/bin
 
 WORKDIR /app
-COPY --from=0 /app/publish .
+COPY --from=0 /app/bin/publish .
 COPY --from=1 /app/build/install ./bin
 
 ENTRYPOINT ["dotnet", "TryKtBot.dll"]
