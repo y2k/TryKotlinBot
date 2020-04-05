@@ -1,4 +1,6 @@
-**/build/
-**/bin/
-**/obj/
-**/.*/
+.git
+**/build
+**/bin
+**/obj
+**/.gradle
+**/.vscode
