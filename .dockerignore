@@ -1,6 +1,6 @@
 .git/
-**/build/
+daemon/build/
+daemon/.gradle/
 **/bin/
 **/obj/
-**/.gradle/
 **/.vscode/
