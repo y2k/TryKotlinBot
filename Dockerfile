@@ -5,8 +5,7 @@
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1.201-alpine3.10
 
 WORKDIR /app
-COPY . /app
-RUN echo $PWD && ls -Rl
+COPY host /app
 RUN dotnet publish -c Release -r linux-x64 --self-contained false -o bin/publish
 
 # ###############################
